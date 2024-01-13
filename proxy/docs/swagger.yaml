@@ -1,0 +1,83 @@
+basePath: /api
+definitions:
+  main.Address:
+    properties:
+      lat:
+        type: string
+      lon:
+        type: string
+      result:
+        type: string
+    type: object
+  main.AddressSearchRequest:
+    properties:
+      query:
+        type: string
+    type: object
+  main.SearchResponse:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/main.Address'
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: test API server for hugoProxy
+  title: HugoProxyWithYandexGeoApi
+  version: "1.1"
+paths:
+  /address/geocode:
+    post:
+      consumes:
+      - application/json
+      description: Get address from coordinates
+      parameters:
+      - description: Address
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.Address'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SearchResponse'
+        "400":
+          description: Bad Request
+        "503":
+          description: Service Unavailable
+      summary: Get address from coordinates
+      tags:
+      - geocode
+  /address/search:
+    post:
+      consumes:
+      - application/json
+      description: Get coordinates from address
+      parameters:
+      - description: AddressSearchRequest
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.AddressSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.SearchResponse'
+        "400":
+          description: Bad Request
+        "503":
+          description: Service Unavailable
+      summary: Get coordinates from address
+      tags:
+      - search
+swagger: "2.0"

@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  server:
+    image: klakegg/hugo:0.101.0-ext-alpine
+    container_name: hugo
+    command: server
+    entrypoint: hugo
+    volumes:
+      - "./hugo:/src"
+    ports:
+      - "1313:1313"
+    networks:
+      - mylocal
+    environment:
+      - TZ=Europe/Moscow
+  app:
+    build: ./proxy
+    container_name: proxy
+    volumes:
+      - "./hugo/content:/app/static"
+    ports:
+      - "8080:8080"
+    networks:
+      - mylocal
+    environment:
+      - TZ=Europe/Moscow
+      - DADATA_API_KEY=2cb6ce15db3cb2b52b47f9c39d250875b89d0723
+      - DADATA_SECRET_KEY=617a4664fbe290c49ea12e5500a53e5e69995246
+networks:
+  mylocal:
+    driver: bridge
