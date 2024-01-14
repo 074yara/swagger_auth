@@ -72,7 +72,6 @@ func (y YandexAPI) GetGeoFromAddress(address string) (string, string) {
 	if len(geoSlice) == 2 {
 		lat, lon = geoSlice[1], geoSlice[0]
 	}
-	//fmt.Println(yandexResponse.Response.GeoObjectCollection.FeatureMember[0].GeoObject.MetaDataProperty.GeocoderMetaData.Text)
 	return lat, lon
 }
 
