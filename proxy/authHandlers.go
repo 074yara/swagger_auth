@@ -127,7 +127,6 @@ func JwtAuthMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "Invalid token", http.StatusForbidden)
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }

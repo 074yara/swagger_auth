@@ -34,5 +34,4 @@ func main() {
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json")))
 	log.Fatal(http.ListenAndServe(":8080", r))
-
 }

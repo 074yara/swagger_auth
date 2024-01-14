@@ -55,7 +55,6 @@ func geoFromAddressHandler(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Service unavailable", http.StatusServiceUnavailable)
 		return
 	}
-
 	searchResponse.Addresses = []*Address{{
 		Result: "",
 		GeoLat: lat,
