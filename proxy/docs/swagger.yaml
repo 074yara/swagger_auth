@@ -21,6 +21,15 @@ definitions:
           $ref: '#/definitions/main.Address'
         type: array
     type: object
+  main.User:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -80,4 +89,41 @@ paths:
       summary: Get coordinates from address
       tags:
       - search
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login user into system
+      parameters:
+      - description: User
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.User'
+      produces:
+      - text/html
+      responses: {}
+      summary: new user handler
+      tags:
+      - login
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: registers a new user with hashed password and adds it to storage
+        in memory
+      parameters:
+      - description: User
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.User'
+      produces:
+      - text/html
+      responses: {}
+      summary: new user handler
+      tags:
+      - register
 swagger: "2.0"

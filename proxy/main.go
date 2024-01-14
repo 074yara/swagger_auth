@@ -21,8 +21,18 @@ func main() {
 	proxy := NewReverseProxy("hugo", "1313")
 	r.Use(middleware.Logger, middleware.Recoverer)
 	r.Use(proxy.ReverseProxy)
-	r.Post("/api/address/search", geoFromAddressHandler)
-	r.Post("/api/address/geocode", addressFromGeoHandler)
+	r.Post("/api/register", registerHandler)
+	r.Post("/api/login", loginHandler)
+	r.Route("/api", func(r chi.Router) {
+		r.Use(JwtAuthMiddleware)
+		r.Post("/address/search", geoFromAddressHandler)
+		r.Post("/address/geocode", addressFromGeoHandler)
+	})
+	/*
+		r.Post("/api/address/search", geoFromAddressHandler)
+		r.Post("/api/address/geocode", addressFromGeoHandler)
+
+	*/
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json")))
 	log.Fatal(http.ListenAndServe(":8080", r))
