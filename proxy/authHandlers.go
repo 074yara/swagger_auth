@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"log"
 	"net/http"
 )
@@ -19,18 +20,20 @@ type User struct {
 	ID       int    `json:"-"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Token    string `json:"-"`
 }
 
 // registerHandler register a new user
 //
-// @Summary new user handler
-// @Description registers a new user with hashed password and adds it to storage in memory
-// @Tags register
-// @Accept json
-// @Produce html
-// @Param input body User true "User"
-// @Router /register [post]
+//	@Summary		new user handler
+//	@Description	registers a new user with hashed password and adds it to storage in memory
+//	@Tags			register
+//	@Accept			json
+//	@Produce		html
+//	@Param			input	body	User	true	"User"
+//	@Success		201		"User registered"
+//	@Failure		400
+//	@Failure		409	"User already exists"
+//	@Router			/register [post]
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -39,7 +42,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, exists := findUserByName(user.Username); exists {
-		http.Error(w, "User `"+user.Username+"` already exists", http.StatusBadRequest)
+		http.Error(w, "User \""+user.Username+"\" already exists", http.StatusConflict)
 		return
 	}
 	hashedPassword, err := HashPassword(user.Password)
@@ -50,7 +53,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	users[user.ID] = &user
 	userIDCounter++
 
-	log.Printf("user %v with ID %v registered", user.Username, user.ID)
+	log.Printf("user \"%v\" with ID %v registered", user.Username, user.ID)
 
 	w.WriteHeader(http.StatusCreated)
 
@@ -58,13 +61,17 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 // loginHandler user login
 //
-// @Summary new user handler
-// @Description login user into system
-// @Tags login
-// @Accept json
-// @Produce html
-// @Param input body User true "User"
-// @Router /login [post]
+//	@Summary		new user handler
+//	@Description	login user into system
+//	@Tags			login
+//	@Accept			json
+//	@Produce		html
+//	@Param			input	body		User	true	"User"
+//	@Success		200		{string}	string	"token"
+//	@Failure		400
+//	@Failure		401	"Incorrect username or password"
+//	@Failure		500
+//	@Router			/login [post]
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -84,17 +91,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, tokenString, err := tokenAuth.Encode(map[string]interface{}{"user_id": foundUser.ID, "username": foundUser.Username})
+	_, tokenString, err := tokenAuth.Encode(map[string]interface{}{"username": foundUser.Username, "id": foundUser.ID})
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
 	}
 
-	users[user.ID].Token = tokenString
-
 	log.Printf("user %v with ID %v succesfully logged in", foundUser.Username, foundUser.ID)
 
-	_, err = w.Write([]byte(tokenString))
+	_, err = w.Write([]byte("Bearer " + tokenString))
 	if err != nil {
 		http.Error(w, "Failed to write token", http.StatusInternalServerError)
 		return
@@ -103,23 +108,26 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func JwtAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, claims, err := jwtauth.FromContext(r.Context())
+		tokenString := jwtauth.TokenFromHeader(r)
+		if tokenString == "" {
+			http.Error(w, "Not authorized", http.StatusForbidden)
+			return
+		}
+
+		log.Println(tokenString)
+
+		token, err := tokenAuth.Decode(tokenString)
 		if err != nil {
-			http.Error(w, "Authorization error", http.StatusUnauthorized)
+			http.Error(w, "Invalid token", http.StatusForbidden)
 			return
 		}
 
-		log.Println(claims)
+		err = jwt.Validate(token)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusForbidden)
+			return
+		}
 
-		userID, ok := claims["user_id"].(int)
-		if !ok {
-			http.Error(w, "Unauthorized1", http.StatusUnauthorized)
-			return
-		}
-		if _, exists := users[userID]; !exists {
-			http.Error(w, "Unauthorized2", http.StatusUnauthorized)
-			return
-		}
 		next.ServeHTTP(w, r)
 	})
 }

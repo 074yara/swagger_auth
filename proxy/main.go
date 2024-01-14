@@ -9,11 +9,14 @@ import (
 	_ "swagger/proxy/docs"
 )
 
-//	@title			HugoProxyWithYandexGeoApi
-//	@version		1.1
-//	@description	test API server for hugoProxy
-//	@host			localhost:8080
-//	@basePath		/api
+//	@title						HugoProxyWithYandexGeoApi
+//	@version					1.1
+//	@description				test API server for hugoProxy
+//	@host						localhost:8080
+//	@basePath					/api
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
 
 func main() {
 
@@ -28,11 +31,6 @@ func main() {
 		r.Post("/address/search", geoFromAddressHandler)
 		r.Post("/address/geocode", addressFromGeoHandler)
 	})
-	/*
-		r.Post("/api/address/search", geoFromAddressHandler)
-		r.Post("/api/address/geocode", addressFromGeoHandler)
-
-	*/
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json")))
 	log.Fatal(http.ListenAndServe(":8080", r))

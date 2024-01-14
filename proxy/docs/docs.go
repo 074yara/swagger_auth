@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/address/geocode": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get address from coordinates",
                 "consumes": [
                     "application/json"
@@ -57,6 +62,11 @@ const docTemplate = `{
         },
         "/address/search": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get coordinates from address",
                 "consumes": [
                     "application/json"
@@ -119,7 +129,23 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Incorrect username or password"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
             }
         },
         "/register": {
@@ -146,7 +172,17 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "201": {
+                        "description": "User registered"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "409": {
+                        "description": "User already exists"
+                    }
+                }
             }
         }
     },
@@ -187,9 +223,6 @@ const docTemplate = `{
         "main.User": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "password": {
                     "type": "string"
                 },
@@ -197,6 +230,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

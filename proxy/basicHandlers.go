@@ -32,6 +32,7 @@ type SearchResponse struct {
 //	@Success		200		{object}	SearchResponse
 //	@Failure		503
 //	@Failure		400
+//	@Security		BearerAuth
 //	@Router			/address/search [post]
 func geoFromAddressHandler(rw http.ResponseWriter, r *http.Request) {
 	var searchRequest AddressSearchRequest
@@ -93,6 +94,7 @@ func geoFromAddressHandler(rw http.ResponseWriter, r *http.Request) {
 //	@Param			input	body		Address	true	"Address"
 //	@Failure		503
 //	@Failure		400
+//	@Security		BearerAuth
 //	@Router			/address/geocode [post]
 func addressFromGeoHandler(rw http.ResponseWriter, r *http.Request) {
 	var searchResponse SearchResponse
