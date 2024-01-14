@@ -53,7 +53,7 @@ func (y YandexAPI) GetGeoFromAddress(address string) (string, string) {
 	var yandexResponse YandexResponse
 	//без QueryEscape не работает на русском
 	address = net.QueryEscape(address)
-	url := fmt.Sprintf(`%v?apikey=%v&geocode=%v&format=%v&resultsresults=1`, yandexURL, y.apikey, address, y.format)
+	url := fmt.Sprintf(`%v?apikey=%v&geocode=%v&format=%v&results=1`, yandexURL, y.apikey, address, y.format)
 	req, err := http.NewRequest("GET", url, nil)
 	checkError(err)
 
@@ -82,7 +82,7 @@ func (y YandexAPI) GetAddrFromGeo(lat, lon string) string {
 	//без QueryEscape не работает на русском
 	lat = net.QueryEscape(lat)
 	lon = net.QueryEscape(lon)
-	url := fmt.Sprintf(`%v?apikey=%v&geocode=%v,%v&format=%v&resultsresults=1`, yandexURL, y.apikey, lon, lat, y.format)
+	url := fmt.Sprintf(`%v?apikey=%v&geocode=%v,%v&format=%v&results=1`, yandexURL, y.apikey, lon, lat, y.format)
 	req, err := http.NewRequest("GET", url, nil)
 	checkError(err)
 
